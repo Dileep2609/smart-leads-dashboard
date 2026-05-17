@@ -1,6 +1,4 @@
-import { useMemo, useState } from "react";
-
-import debounce from "lodash/debounce";
+import { useState } from "react";
 
 import { CSVLink } from "react-csv";
 
@@ -67,14 +65,6 @@ function DashboardPage() {
 
   const [source, setSource] = useState("Website");
 
-  const [search, setSearch] = useState("");
-
-  const [statusFilter, setStatusFilter] = useState("");
-
-  const [page, setPage] = useState(1);
-
-  const limit = 5;
-
   // LOGOUT
   const handleLogout = () => {
     logout();
@@ -82,7 +72,7 @@ function DashboardPage() {
     navigate("/");
   };
 
-  // CREATE
+  // CREATE LEAD
   const handleCreateLead = () => {
     if (!name || !email) {
       alert("All fields required");
@@ -110,62 +100,6 @@ function DashboardPage() {
 
     setSource("Website");
   };
-
-  // DELETE
-  const handleDelete = (id: number) => {
-    const filtered = leads.filter((lead) => lead.id !== id);
-
-    setLeads(filtered);
-  };
-
-  // UPDATE
-  const handleUpdateStatus = (id: number) => {
-    const updated = leads.map((lead) => {
-      if (lead.id === id) {
-        let newStatus = "Lost";
-
-        if (lead.status === "New") {
-          newStatus = "Contacted";
-        } else if (lead.status === "Contacted") {
-          newStatus = "Qualified";
-        }
-
-        return {
-          ...lead,
-          status: newStatus,
-        };
-      }
-
-      return lead;
-    });
-
-    setLeads(updated);
-  };
-
-  // SEARCH
-  const debouncedSearch = useMemo(
-    () =>
-      debounce((value: string) => {
-        setSearch(value);
-      }, 500),
-    []
-  );
-
-  // FILTERS
-  const filteredLeads = leads.filter((lead) => {
-    const matchesSearch =
-      lead.name.toLowerCase().includes(search.toLowerCase()) ||
-      lead.email.toLowerCase().includes(search.toLowerCase());
-
-    const matchesStatus = statusFilter ? lead.status === statusFilter : true;
-
-    return matchesSearch && matchesStatus;
-  });
-
-  // PAGINATION
-  const totalPages = Math.ceil(filteredLeads.length / limit);
-
-  const paginatedLeads = filteredLeads.slice((page - 1) * limit, page * limit);
 
   // CHART DATA
   const chartData = [
@@ -268,6 +202,7 @@ function DashboardPage() {
             }`}
           >
             <h3>Total Leads</h3>
+
             <p className="text-5xl font-bold mt-4">{leads.length}</p>
           </div>
 
@@ -277,6 +212,7 @@ function DashboardPage() {
             }`}
           >
             <h3>Qualified</h3>
+
             <p className="text-5xl font-bold text-green-500 mt-4">
               {chartData[2].value}
             </p>
@@ -288,6 +224,7 @@ function DashboardPage() {
             }`}
           >
             <h3>Contacted</h3>
+
             <p className="text-5xl font-bold text-blue-500 mt-4">
               {chartData[1].value}
             </p>
@@ -299,6 +236,7 @@ function DashboardPage() {
             }`}
           >
             <h3>Lost</h3>
+
             <p className="text-5xl font-bold text-red-500 mt-4">
               {chartData[3].value}
             </p>

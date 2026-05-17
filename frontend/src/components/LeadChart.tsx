@@ -1,7 +1,6 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
-import { Lead } from "../types/lead";
-
+import type { Lead } from "../types/lead";
 interface Props {
   data?: Lead[];
 }
