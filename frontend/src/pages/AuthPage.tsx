@@ -1,13 +1,9 @@
 import { useState } from "react";
-
 import { useNavigate } from "react-router-dom";
-
-import { useAuthStore } from "../store/authStore";
+import axios from "axios";
 
 function AuthPage() {
   const navigate = useNavigate();
-
-  const login = useAuthStore((state) => state.login);
 
   const [isLogin, setIsLogin] = useState(true);
 
@@ -17,37 +13,45 @@ function AuthPage() {
 
   const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const API = import.meta.env.VITE_API_URL;
 
-    const fakeUser = {
-      name: name || "Demo User",
-      email,
-      role: "admin",
-    };
+  const handleSubmit = async () => {
+    try {
+      const endpoint = isLogin ? "/auth/login" : "/auth/register";
 
-    const fakeToken = "demo-token";
+      const payload = isLogin
+        ? {
+            email,
+            password,
+          }
+        : {
+            name,
+            email,
+            password,
+          };
 
-    login(fakeUser, fakeToken);
+      const response = await axios.post(`${API}${endpoint}`, payload);
 
-    navigate("/dashboard");
+      localStorage.setItem("token", response.data.token);
+
+      navigate("/dashboard");
+    } catch (error) {
+      console.log(error);
+
+      alert("Authentication Failed");
+    }
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-      <div className="bg-white p-10 rounded-2xl shadow-xl w-[420px]">
-        <h1 className="text-4xl font-bold text-center mb-2">Smart Leads</h1>
+    <div className="min-h-screen flex items-center justify-center bg-slate-100">
+      <div className="bg-white p-10 rounded-2xl shadow-xl w-[400px]">
+        <h1 className="text-3xl font-bold mb-6 text-center">Smart Leads</h1>
 
-        <p className="text-center text-slate-500 mb-8">
-          MERN Internship Project
-        </p>
-
-        {/* TOGGLE */}
-        <div className="flex mb-8">
+        <div className="flex mb-6">
           <button
             onClick={() => setIsLogin(true)}
-            className={`flex-1 py-3 rounded-l-xl ${
-              isLogin ? "bg-black text-white" : "bg-slate-200"
+            className={`flex-1 py-3 rounded-l-lg ${
+              isLogin ? "bg-black text-white" : "bg-gray-200"
             }`}
           >
             Login
@@ -55,49 +59,47 @@ function AuthPage() {
 
           <button
             onClick={() => setIsLogin(false)}
-            className={`flex-1 py-3 rounded-r-xl ${
-              !isLogin ? "bg-black text-white" : "bg-slate-200"
+            className={`flex-1 py-3 rounded-r-lg ${
+              !isLogin ? "bg-black text-white" : "bg-gray-200"
             }`}
           >
             Register
           </button>
         </div>
 
-        {/* FORM */}
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {!isLogin && (
-            <input
-              type="text"
-              placeholder="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full border p-4 rounded-xl"
-            />
-          )}
-
+        {!isLogin && (
           <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full border p-4 rounded-xl"
+            type="text"
+            placeholder="Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full border p-3 rounded-lg mb-4"
           />
+        )}
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full border p-4 rounded-xl"
-          />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full border p-3 rounded-lg mb-4"
+        />
 
-          <button
-            type="submit"
-            className="w-full bg-black text-white py-4 rounded-xl"
-          >
-            {isLogin ? "Login" : "Register"}
-          </button>
-        </form>
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border p-3 rounded-lg mb-6"
+        />
+
+        <button
+          onClick={handleSubmit}
+          type="button"
+          className="w-full bg-black text-white py-3 rounded-lg"
+        >
+          {isLogin ? "Login" : "Register"}
+        </button>
       </div>
     </div>
   );
